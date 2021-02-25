@@ -8,7 +8,7 @@ import funciones_algoritmo_vf as funcion
 import generador_malla
 from obtener_grupos_fisicos import grupos_fisicos as obtener_grupos_fisicos
 # Perfil Ipn
-tm = 50
+tm = 100
 
 altura_total = 600.0
 base = 215.0
@@ -50,8 +50,8 @@ print("")
 M = csc_matrix(Matriz_Global)
 
 # Resolver el sistema lineal AX = B
-Temperaturas = splinalg.spsolve(M, fuente)
-# x, istop, itn, normr = lsqr(A, b)[:4]
+# Temperaturas = splinalg.spsolve(M, fuente)
+Temperaturas, istop, itn, normr = splinalg.lsqr(M, fuente)[:4]
 print("Temperaturas")
 show_matrix(Temperaturas)
 #-----------------------------------------------------------

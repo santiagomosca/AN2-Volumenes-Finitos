@@ -50,8 +50,9 @@ print("")
 M = csc_matrix(Matriz_Global)
 #%%
 # Resolver el sistema lineal AX = B
-Temperaturas, istop, itn, normr = splinalg.lsqr(M, fuente)[:4]
+Temperaturas = splinalg.spsolve(M, fuente)
 # x, istop, itn, normr = lsqr(A, b)[:4]
 print("Temperaturas")
 print(list(Temperaturas))
 #-----------------------------------------------------------
+# %%

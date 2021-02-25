@@ -35,9 +35,9 @@ print("Cantidad de elementos 'M': {:.0f}".format(M))
 print("Cantidad de nodos 'N': {:.0f}".format(N))
     # Ciclo for (barrido de elementos)
 for m in range(M):
-    G_mn, nodos_k = funcion.elem_nodos(m, datos)
-    A = funcion.coef_a_mn(m, datos)
-    Matriz_Global = funcion.matriz_global(Matriz_Global, N, nodos_k, A)  
+    G_mn, nodos_k = funcion.obtener_nodos_elemento(m, datos)
+    A = funcion.obtener_contribuciones_elemento(m, datos)
+    Matriz_Global = funcion.obtener_matriz_global(Matriz_Global, N, nodos_k, A)  
 print("La matriz global sin condiciones de contorno:")
 show_matrix(Matriz_Global)
 

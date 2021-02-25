@@ -15,7 +15,7 @@ def leer_malla(filename):
     }
     return datos
 #%
-def elem_nodos(tag_elem, datos):
+def obtener_nodos_elemento(tag_elem, datos):
     # Extrae las coordenadas de los nodos locales (1), (2) y (3) del elemento m
     nlocal = datos["elementos"][tag_elem]
     n1 = datos["nodos_xyz"][nlocal[0]-1]
@@ -27,7 +27,7 @@ def elem_nodos(tag_elem, datos):
 def matriz_jacobiano(tag_elem, datos):
     # Calcula el Jacobiano del elemento
     # Mi triangulo
-    coord_nodo_local, nodosk = elem_nodos(tag_elem, datos)
+    coord_nodo_local, nodosk = obtener_nodos_elemento(tag_elem, datos)
     lx23 = coord_nodo_local[2,0]-coord_nodo_local[1,0]
     lx12 = coord_nodo_local[1,0]-coord_nodo_local[0,0]
     ly23 = coord_nodo_local[2,1]-coord_nodo_local[1,1]
@@ -48,7 +48,7 @@ def elem_normalizado():
     # psi_eps_etta = np.array([[-.5, .5], [.0, -.5], [.5, .0]])
     return psi_eps_etta, dN_deps, dN_detta
 #%
-def coef_alfa(tag_elem, datos):
+def obtener_coef_elemento(tag_elem, datos):
     matriz, jacobiano = matriz_jacobiano(tag_elem, datos)
     lx23, lx12 = matriz[0,:]
     ly23, ly12 = matriz[1,:]
@@ -59,10 +59,10 @@ def coef_alfa(tag_elem, datos):
     alfa4 = -(lx12*lx23+ly12*lx12)/jacobiano
     return alfa1, alfa2, alfa3, alfa4
 #%
-def coef_a_mn(tag_elem, datos):
+def obtener_contribuciones_elemento(tag_elem, datos):
     psi_eps_etta, dN_deps, dN_detta = elem_normalizado()
 
-    alfa1, alfa2, alfa3, alfa4 = coef_alfa(tag_elem, datos)
+    alfa1, alfa2, alfa3, alfa4 = obtener_coef_elemento(tag_elem, datos)
     
     k= 3 #nodos locales
     A = np.zeros((k,k))
@@ -73,7 +73,7 @@ def coef_a_mn(tag_elem, datos):
         A = alfa_eps+alfa_etta
     return A
 #%
-def matriz_global(M, N, nodosk, A):
+def obtener_matriz_global(M, N, nodosk, A):
     nodosk = [(nodosk[k]-1) for k in range(len(nodosk))]
     k = 3 #nodos locales
     for it in range(k):

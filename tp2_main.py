@@ -48,11 +48,11 @@ print("La Matriz Global con las condiciones de contorno")
 show_matrix(Matriz_Global)
 print("")
 M = csc_matrix(Matriz_Global)
-#%%
+
 # Resolver el sistema lineal AX = B
 Temperaturas = splinalg.spsolve(M, fuente)
 # x, istop, itn, normr = lsqr(A, b)[:4]
 print("Temperaturas")
-print(list(Temperaturas))
+show_matrix(Temperaturas)
 #-----------------------------------------------------------
 # %%

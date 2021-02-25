@@ -42,39 +42,35 @@ def elem_normalizado():
     
     # Mi triangulo 
     psi_eps_etta = np.array([[.0, .5 ],[-.5, .5],[.5, .0]])
+    dN_deps = np.array([0, -1, 1])
+    dN_detta = np.array([-1, 1, 0])
     # # Triangulo 1 
     # psi_eps_etta = np.array([[-.5, .5], [.0, -.5], [.5, .0]])
-    return psi_eps_etta
+    return psi_eps_etta, dN_deps, dN_detta
 #%
 def coef_alfa(tag_elem, datos):
     matriz, jacobiano = matriz_jacobiano(tag_elem, datos)
     lx23, lx12 = matriz[0,:]
     ly23, ly12 = matriz[1,:]
     
-    alfa12 = (lx12**2 + ly12**2)/jacobiano
-    alfa23 = (lx23**2 + ly23**2)/jacobiano
-    alfa123 = (lx12*lx23 + ly12*ly23)/jacobiano
-    return alfa12, alfa23, alfa123
+    alfa1 = +(ly12*ly23+lx23*ly23)/jacobiano
+    alfa2 = +(ly12**2+ly23*lx12)/jacobiano
+    alfa3 = -(lx23**2+lx12*ly23)/jacobiano
+    alfa4 = -(lx12*lx23+ly12*lx12)/jacobiano
+    return alfa1, alfa2, alfa3, alfa4
 #%
 def coef_a_mn(tag_elem, datos):
-    psi_eps_etta = elem_normalizado()
+    psi_eps_etta, dN_deps, dN_detta = elem_normalizado()
 
-    alfa12, alfa23, alfa123 = coef_alfa(tag_elem, datos)
-    alfa = np.array([[-alfa23, alfa123], [alfa123, alfa12]])
+    alfa1, alfa2, alfa3, alfa4 = coef_alfa(tag_elem, datos)
     
     k= 3 #nodos locales
     A = np.zeros((k,k))
     for i in range(k):
         # Contribuciones del elemento m al nodo local i
-        a1_m_i = np.dot(alfa[0,:], psi_eps_etta[i,:])
-        a3_m_i = np.dot(alfa[1,:], psi_eps_etta[i,:])
-        # Mi triangulo
-        if i == 1:
-            A[i,0] = a1_m_i
-        elif i==2:
-            A[i,1] = a1_m_i - a3_m_i
-        else:
-            A[i,2] = a3_m_i
+        alfa_eps = (alfa1*psi_eps_etta[i,0])*dN_deps + (alfa2*psi_eps_etta[i,1])*dN_detta
+        alfa_etta = (alfa3*psi_eps_etta[i,0])*dN_deps + (alfa4*psi_eps_etta[i,1])*dN_detta
+        A = alfa_eps+alfa_etta
     return A
 #%
 def matriz_global(M, N, nodosk, A):
@@ -84,8 +80,8 @@ def matriz_global(M, N, nodosk, A):
         n = nodosk[it]
         # a_mn = A[it]
         a_mn = np.zeros(N)
-        a_mn[nodosk] = A[it,:]
-        M[n-1,:] += a_mn
+        a_mn[nodosk] = A[it]
+        M[:,n-1] += a_mn
     return M
 #%
 def cc_dirichlet(dict_fisico, dict_nodos, dict_condiciones, matriz):
@@ -105,7 +101,7 @@ def cc_dirichlet(dict_fisico, dict_nodos, dict_condiciones, matriz):
             print(nombres_grupo)
             print("")
             sys.exit(1)
-    fuente = U_cond
     I = np.eye(num_nodos)
     matriz[U_cond.nonzero(),:] = I[U_cond.nonzero()]
+    fuente = U_cond
     return matriz, fuente

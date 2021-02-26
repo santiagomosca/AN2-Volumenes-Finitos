@@ -5,4 +5,4 @@ Algoritmo de Volumenes Finitos con malla generada por GMSH (con la API para Pyth
 Resolución de la Ecuación de Laplace para obtener el perfil de Temperaturas de un perfil IPN600.
 
 Para obtener la API GMSH para Python:
-                                      git pip install --upgrade gmsh
+                                      pip install --upgrade gmsh

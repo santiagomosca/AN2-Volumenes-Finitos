@@ -43,12 +43,12 @@ def cuadrado(altura, base, tamaño_malla, filename):
     T1 = gmsh.model.addPhysicalGroup(1, [l4])
     gmsh.model.setPhysicalName(1, T1, "Lateral izquierdo")
 
-    T2 = gmsh.model.addPhysicalGroup(1, [l1[1]])
-    gmsh.model.setPhysicalName(1, T2, "Borde inferior")
-
     T3 = gmsh.model.addPhysicalGroup(1, [l2[1]])
     gmsh.model.setPhysicalName(1, T3, "Lateral derecho")
 
+    T2 = gmsh.model.addPhysicalGroup(1, [l1[1]])
+    gmsh.model.setPhysicalName(1, T2, "Borde inferior")
+    
     G1 = gmsh.model.addPhysicalGroup(1, [l3[1]])
     gmsh.model.setPhysicalName(1, G1, "Borde superior")
 

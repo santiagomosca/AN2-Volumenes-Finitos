@@ -8,7 +8,7 @@ import funciones_algoritmo_vf as funcion
 import generador_malla
 from obtener_grupos_fisicos import grupos_fisicos as obtener_grupos_fisicos
 # Perfil Ipn
-tm = 100
+tm = 50
 
 altura_total = 600.0
 base = 215.0
@@ -16,16 +16,16 @@ espesor = 21.0
 ancho_base = 33.0
 
 # Creacion malla
-filename = generador_malla.cuadrado(10, 10, 5, 'cuadrado')
-# filename = 'perfil_ipn'
-# filename = generador_malla.perfil_ipn(base, ancho_base, altura_total, espesor, tm, filename)
+# filename = generador_malla.cuadrado(10, 10, 1, 'cuadrado')
+filename = 'perfil_ipn'
+filename = generador_malla.perfil_ipn(base, ancho_base, altura_total, espesor, tm, filename)
 datos = funcion.leer_malla(filename)
 
 # Condiciones de contorno
 condiciones = {
     "Lateral izquierdo": 16,
-    "Borde inferior": 20,
     "Lateral derecho": 18,
+    "Borde inferior": 20,
 }
 
 # Creacion Matriz
@@ -36,7 +36,7 @@ print("Cantidad de nodos 'N': {:.0f}".format(N))
     # Ciclo for (barrido de elementos)
 for m in range(M):
     G_mn, nodos_k = funcion.obtener_nodos_elemento(m, datos)
-    A = funcion.obtener_contribuciones_elemento(m, datos)
+    A = funcion.obtener_contribuciones_elemento(m,tipo_elem_triangular=2, datos=datos)
     Matriz_Global = funcion.obtener_matriz_global(Matriz_Global, N, nodos_k, A)  
 print("La matriz global sin condiciones de contorno:")
 show_matrix(Matriz_Global)

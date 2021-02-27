@@ -52,7 +52,9 @@ M = csc_matrix(Matriz_Global)
 # Resolver el sistema lineal AX = B
 # Temperaturas = splinalg.spsolve(M, fuente)
 Temperaturas, istop, itn, normr = splinalg.lsqr(M, fuente)[:4]
-print("Temperaturas")
-show_matrix(Temperaturas)
+
+# Escritura al archivo .msh de los resultados, para visualizar con Gmsh
+print("Escritura a archivo .msh de las temperaturas")
+funcion.escribir_resultado(Temperaturas, filename)
 #-----------------------------------------------------------
 # %%

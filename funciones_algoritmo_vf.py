@@ -112,3 +112,30 @@ def cc_dirichlet(dict_fisico, dict_nodos, dict_condiciones, matriz):
     matriz[U_cond.nonzero(),:] = I[U_cond.nonzero()]
     fuente = U_cond
     return matriz, fuente
+#%
+def escribir_resultado(array_resultados, filename):
+    """Función que escribe al archivo .msh los resultados de la simulación.
+    Anexa al final del archivo el escalar temperatura. Se puede abrir
+    directamente con el programa 'Gmsh'. El formato de .msh es 4.1.
+    Información sobre el formato para escribir en
+    https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format
+
+    La cantidad de nodos se obtiene del tamaño del array de resultados.
+    Debido a que la indexación de Gmsh comienza con '1', debe añadirse
+    la unidad a la numeración de numpy.
+    Los resultados de temperatura corresponde a los valores del array.
+    """
+
+    with open(filename+'.msh', 'a') as archivo:
+        archivo.write('$NodeData\n')
+        archivo.write('1\n')    # 1 string tag
+        archivo.write('"Temperatura"\n')  # the name of the view
+        archivo.write('1\n')    # 1 real tag
+        archivo.write('0.0\n')  # the time value
+        archivo.write('3\n')    # 3 integer tags:
+        archivo.write('0\n')    # the time step
+        archivo.write('1\n')    # 1-component (scalar) field
+        archivo.write(f"{array_resultados.size}\n") # N associated nodal values
+        for nodo, valor in np.ndenumerate(array_resultados):
+            archivo.write("{n} {v}\n".format(n=nodo[0]+1, v=valor))
+        archivo.write('$EndNodeData\n')

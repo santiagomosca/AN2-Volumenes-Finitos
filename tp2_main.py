@@ -19,7 +19,7 @@ from obtener_grupos_fisicos import grupos_fisicos as obtener_grupos_fisicos
 
 # --- Lectura de opciones --- #
 
-tm, func_malla, tipo_malla = leer_opciones.opciones()
+geo_malla, tm, func_malla, tipo_malla = leer_opciones.opciones()
 
 # --- Datos de perfil IPN 600 --- #
 altura_total = 600.0
@@ -27,18 +27,25 @@ base = 215.0
 espesor = 21.0
 ancho_base = 33.0
 
-# --- Creación de la malla --- #
-# filename = generador_malla.cuadrado(10, 10, 1, 'cuadrado')
-filename = 'perfil_ipn'
+# --- Datos de cuadrado --- #
+arg1_cuad = 10
+arg2_cuad = 10
 
-if func_malla==1:
-    # Función no estructurada original
-    filename = generador_malla.perfil_ipn(base, ancho_base, altura_total,
-            espesor, tm, filename)
-else: # func_malla==2
-    # Función para malla estructurada
-    filename = generador_malla.estruct_perfil_ipn(base, ancho_base,
-            altura_total, espesor, tm, filename, estructurada=tipo_malla)
+# --- Creación de la malla --- #
+if geo_malla == 'C':
+    filename = generador_malla.cuadrado(arg1_cuad, arg2_cuad, tm, 'cuadrado')
+
+else: # geo_malla=='P':
+    filename = 'perfil_ipn'
+    
+    if func_malla==1:
+        # Función no estructurada original
+        filename = generador_malla.perfil_ipn(base, ancho_base, altura_total,
+                espesor, tm, filename)
+    else: # func_malla==2
+        # Función para malla estructurada
+        filename = generador_malla.estruct_perfil_ipn(base, ancho_base,
+                altura_total, espesor, tm, filename, estructurada=tipo_malla)
 
 datos = funcion.leer_malla(filename)
 

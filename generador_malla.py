@@ -160,7 +160,7 @@ def perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tamaño_malla
 def estruct_perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tamaño_malla, filename, estructurada='N'):
     """
     Creación de malla para perfil IPN.
-    La malla puede ser estructurada con elementos cuadrangulares.
+    La malla puede ser estructurada con elementos triangulares.
     En tal caso la opción es 'S'. Por defecto es no ('N').
     """
     gmsh.initialize()

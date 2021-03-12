@@ -24,7 +24,7 @@ filename = 'perfil_ipn'
 
 # Función para malla estructurada
 filename = generador_malla.estruct_perfil_ipn(base, ancho_base, altura_total, espesor,
-        tm, filename, estructurada='N')
+        tm, filename, estructurada='S')
 datos = funcion.leer_malla(filename)
 
 # --- Condiciones de contorno --- #

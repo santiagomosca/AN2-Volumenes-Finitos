@@ -16,6 +16,12 @@ def opciones():
     
     parser = argparse.ArgumentParser(description=descripcion)
     
+    parser.add_argument('-g', '--geoMalla',
+            help="Forma de la geometría a mallar. Las opciones son\
+            'C', para obtener un cuadrado, o 'P', para obtener un\
+            perfil IPN (opción por defecto).",
+            required=False, action='store', type=str, default='P')
+    
     parser.add_argument('-t', '--tamElem',
             help='Longitud característica de los puntos de la malla.\
                     afecta el tamaño de los elementos. Por defecto\
@@ -38,11 +44,18 @@ def opciones():
     
     args = parser.parse_args()
     
+    geo_malla = args.geoMalla
+    if geo_malla not in ('C','P'):
+        print('Geometría de mallado mal especificada. Debe ser <C> o <P>.')
+        sys.exit(1)
+
     tm = args.tamElem
+ 
     func_malla = args.funcMallado
     if func_malla not in (1,2):
         print('Función de mallado mal especificada. Debe ser <1> o <2>.')
         sys.exit(1)
+
     tipo_malla = args.estruct
 
-    return tm, func_malla, tipo_malla
+    return geo_malla, tm, func_malla, tipo_malla

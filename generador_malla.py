@@ -157,7 +157,7 @@ def perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tamaño_malla
     return filename
 
 #%%
-def estruct_perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tamaño_malla, filename, estructurada='N'):
+def estruct_perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tamaño_malla, filename, estructurada='N', refinado=0):
     """
     Creación de malla para perfil IPN.
     La malla puede ser estructurada con elementos triangulares.
@@ -236,8 +236,13 @@ def estruct_perfil_ipn(largo_base, ancho_base, altura_total, espesor_alma, tama�
     
     # Mallado 2D de la geometría
     gmsh.model.mesh.generate(2)
+    
+    #--- Refinación de la malla ---#
+    # Refina la malla dividiendo en 2 los elementos generados previamente.
+    # La refinación es igual a 0 por defecto
+    for ref in range(refinado):
+        gmsh.model.mesh.refine()
 
- 
     #--- Identificación de líneas y superficies físicas ---#
     T1 = gmsh.model.addPhysicalGroup(1, [s3[2][1], s3[0][1], s7[2][1], l6, s6[2][1]])
     gmsh.model.setPhysicalName(1, T1, "Lateral derecho")

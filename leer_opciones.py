@@ -41,6 +41,12 @@ def opciones():
             es estructurada (S) o no (opción por defecto, N).',
             required=False, action='store', type=str, default='N')
     
+    parser.add_argument('-r', '--refinado',
+            help='Si la función de mallado es opción <2>, opción para elegir el\
+            grado de refinación aplicado a la malla a partir de los elementos generados.\
+            Por defecto es 0 (sin refinación).',
+            required=False, action='store', type=int)
+    
     
     args = parser.parse_args()
     
@@ -58,4 +64,6 @@ def opciones():
 
     tipo_malla = args.estruct
 
-    return geo_malla, tm, func_malla, tipo_malla
+    ref_malla = args.refinado
+
+    return geo_malla, tm, func_malla, tipo_malla, ref_malla

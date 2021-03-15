@@ -7,6 +7,11 @@ from obtener_grupos_fisicos import grupos_fisicos as obtener_grupos_fisicos
 from obtener_grupos_fisicos import obtener_nodos as obtener_nodos_grupo
 #%%
 def leer_malla(filename):
+    """
+    Función que extrae, del archivo .msh, las coordenadas xyz 
+    de los nodos globales de la malla ,y los nodos globales asociados 
+    a cada elemento triangular m.
+    """
     xyz_nod = extraer_nodos(filename+'.msh')
     ele_tagnod = extraer_elementos(filename+'.msh')    
     datos = {
@@ -16,7 +21,10 @@ def leer_malla(filename):
     return datos
 #%
 def obtener_nodos_elemento(tag_elem, datos):
-    # Extrae las coordenadas de los nodos locales (1), (2) y (3) del elemento m
+    ''' 
+    Función que extrae las coordenadas de los nodos locales (1), (2) y (3) 
+    del elemento triangular m
+    '''
     nlocal = datos["elementos"][tag_elem]
     n1 = datos["nodos_xyz"][nlocal[0]-1]
     n2 = datos["nodos_xyz"][nlocal[1]-1]
@@ -25,7 +33,9 @@ def obtener_nodos_elemento(tag_elem, datos):
     return n, nlocal
 #%
 def matriz_jacobiano(tag_elem, tipo_elem_triangular, datos):
-    # Calcula el Jacobiano a partir de un elemento normalizado triangular
+    '''
+    Función que calcula el Jacobiano a partir de un elemento normalizado triangular.
+    '''
     coord_nodo_local, nodosk = obtener_nodos_elemento(tag_elem, datos)
     x = [coord_nodo_local[k,0] for k in range(len(nodosk))]
     y = [coord_nodo_local[k,1] for k in range(len(nodosk))]
@@ -37,10 +47,13 @@ def matriz_jacobiano(tag_elem, tipo_elem_triangular, datos):
     return matriz, jacobiano
 #%
 def elem_normalizado(tipo_elemento_triangular):
-    # Calcula las integrales d{Psi}_Eps y d{Psi}_Etta del nodo
-    # Fila #k corresponde al nodo local #k con k entre 1 y 3
+    '''
+    Función que calcula las integrales d{Psi}_Eps y d{Psi}_Etta asociados al nodo local k.
+    (Calcula la longitud del contorno del sub-dominio del nodo local k)    
+    Fila #k corresponde al nodo local #k con k entre 1 y 3
+    '''
     if tipo_elemento_triangular == 1:
-        # # Triangulo 1 
+        # # Triangulo 1 (del mallador GMSH)
         psi_eps_etta = np.array([[-.5, .5], [.0, -.5], [.5, .0]])
         dN_deps = np.array([-1, 1, 0])
         dN_detta = np.array([-1, 0, 1])   
@@ -55,32 +68,48 @@ def elem_normalizado(tipo_elemento_triangular):
     return psi_eps_etta, dN_deps, dN_detta
 #%
 def obtener_coef_elemento(tag_elem, tipo_elem_triangular, datos):
+    '''
+    Función que obtiene los elementos de la matriz Jacobiana y el Jacobiano 
+    asociados al elemento normalizado
+    '''
     matriz, jacobiano = matriz_jacobiano(tag_elem, tipo_elem_triangular, datos)
     L11, L12 = matriz[0,:]
     L21, L22 = matriz[1,:]
-    
-    alfa1 = +(L22*L21+L11*L21)/jacobiano
-    alfa2 = +(L22**2+L21*L12)/jacobiano
-    alfa3 = -(L11**2+L12*L21)/jacobiano
-    alfa4 = -(L12*L11+L22*L12)/jacobiano
+        
+    alfa1 = +(L22*L21+L11*L12)/jacobiano
+    alfa2 = +(L22**2+L12*L12)/jacobiano
+    alfa3 = -(L11**2+L21*L21)/jacobiano
+    alfa4 = -(L12*L11+L22*L21)/jacobiano
     return alfa1, alfa2, alfa3, alfa4
 #%
 def obtener_contribuciones_elemento(tag_elem, tipo_elem_triangular,  datos):
+    '''
+    Función que obtiene las contribuciones del elemento m a los nodos locales k
+    (Contribución del nodo local k' al nodo k , ambos del elemento m)
+    en una matriz de rigidez local A [k x k]
+    
+    '''
+    # Se obtienen los datos del elemento normalizado elegido
     psi_eps_etta, dN_deps, dN_detta = elem_normalizado(tipo_elem_triangular)
 
+    # Se obtienen los coeficientes alfas
     alfa1, alfa2, alfa3, alfa4 = obtener_coef_elemento(tag_elem, tipo_elem_triangular, datos)
-    # alfa1, alfa2, alfa3, alfa4 = obtener_coef_elemento(tag_elem, datos)
 
-    k= 3 #nodos locales
+    k= 3 #nodos locales del elemento triangular
     A = np.zeros((k,k))
     for i in range(k):
-        # Contribuciones del elemento m al nodo local i
-        alfa_eps = (alfa1*psi_eps_etta[i,0])*dN_deps + (alfa2*psi_eps_etta[i,1])*dN_detta
-        alfa_etta = (alfa3*psi_eps_etta[i,0])*dN_deps + (alfa4*psi_eps_etta[i,1])*dN_detta
-        A[i,:] = alfa_eps+alfa_etta
+        # Contribuciones del elemento m al nodo local k
+        alfa_eps = (alfa1*psi_eps_etta[i,0])*dN_deps + (alfa2*psi_eps_etta[i,1])*dN_deps
+        alfa_etta = (alfa3*psi_eps_etta[i,0])*dN_detta + (alfa4*psi_eps_etta[i,1])*dN_detta
+        A[i,:] = alfa_eps+alfa_etta # Matriz que guarda las contribuciones al nodo local k en sus filas
     return A
 #%
 def obtener_matriz_global(M, N, nodosk, A):
+    '''
+    Función que obtiene la Matriz de rigidez global M [N x N], a partir los nodos globales
+    asociados a un elemento m
+    'nodosk': es el diccionario que asocia los nodos locales de un elemento m a los nodos globales de la malla.    
+    '''
     nodosk = [(nodosk[k]-1) for k in range(len(nodosk))]
     k = 3 #nodos locales
     for it in range(k):
@@ -92,6 +121,16 @@ def obtener_matriz_global(M, N, nodosk, A):
     return M
 #%
 def cc_dirichlet(dict_fisico, dict_nodos, dict_condiciones, matriz):
+    '''
+    Función que aplica las condiciones de contorno de Dirichlet a la Matriz global.
+    También devuelve el termino independiente o fuente del sistema.
+    'dict_fisico': contiene el index y los nombres de los grupos fisicos.
+    'dict_nodos': contiene el mismo index del grupo fisico y los nodos globales asociados.
+    'dict_condiciones': contiene los nombres de los grupos físicos y las condiciones a aplicar.
+    
+    OBS: Los nombres de los grupos fisicos en la malla y los dados en el diccionario condiciones, 
+    deben coincidir.
+    '''
     nombres_grupo = [t[1] for t in dict_fisico.values()]
     tag_grupos = list(dict_condiciones.keys())
     num_nodos = np.size([matriz],2)

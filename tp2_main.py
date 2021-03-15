@@ -19,7 +19,7 @@ from obtener_grupos_fisicos import grupos_fisicos as obtener_grupos_fisicos
 
 # --- Lectura de opciones --- #
 
-geo_malla, tm, func_malla, tipo_malla = leer_opciones.opciones()
+geo_malla, tm, func_malla, tipo_malla, ref_malla = leer_opciones.opciones()
 
 # --- Datos de perfil IPN 600 --- #
 altura_total = 600.0
@@ -45,7 +45,7 @@ else: # geo_malla=='P':
     else: # func_malla==2
         # Función para malla estructurada
         filename = generador_malla.estruct_perfil_ipn(base, ancho_base,
-                altura_total, espesor, tm, filename, estructurada=tipo_malla)
+                altura_total, espesor, tm, filename, estructurada=tipo_malla, refinado=ref_malla)
 
 datos = funcion.leer_malla(filename)
 

@@ -8,6 +8,7 @@ al programa 'tp2_main.py'
 """
 
 import numpy as np
+import time
 from numpy.__config__ import show
 from pandas import DataFrame as show_matrix
 from scipy.sparse import csc_matrix
@@ -31,7 +32,10 @@ ancho_base = 33.0
 arg1_cuad = 10
 arg2_cuad = 10
 
-# --- Creación de la malla --- #
+# --- MALLADO ------------------------------------------------------------
+
+tiempo_ini_malla = time.time()
+
 if geo_malla == 'C':
     filename = generador_malla.cuadrado(arg1_cuad, arg2_cuad, tm, 'cuadrado')
 
@@ -46,6 +50,16 @@ else: # geo_malla=='P':
         # Función para malla estructurada
         filename = generador_malla.estruct_perfil_ipn(base, ancho_base,
                 altura_total, espesor, tm, filename, estructurada=tipo_malla, refinado=ref_malla)
+
+tiempo_fin_malla = time.time()
+
+print("\nTiempo de malladoo: {:f} segundos\n".format(tiempo_fin_malla-tiempo_ini_malla))
+
+
+
+
+# --- SOLUCIÓN ------------------------------------------------------------
+tiempo_ini_sol = time.time()
 
 datos = funcion.leer_malla(filename)
 
@@ -83,6 +97,10 @@ M = csc_matrix(Matriz_Global)
 # --- Resolver el sistema lineal AX = B --- #
 # Temperaturas = splinalg.spsolve(M, fuente)
 Temperaturas, istop, itn, normr = splinalg.lsqr(M, fuente)[:4]
+
+tiempo_fin_sol = time.time()
+
+print("\nTiempo solución sistema: {:f} segundos\n".format(tiempo_fin_sol-tiempo_ini_sol))
 
 # --- Escritura al archivo .msh de los resultados, para visualizar con Gmsh --- #
 print("Escritura a archivo .msh de las temperaturas")
